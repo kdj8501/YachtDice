@@ -214,12 +214,12 @@ public class Room extends JFrame implements ActionListener{
 		{
 			if (actionCmd.equals("user1/" + i))
 			{
-				doMessage("btn:" + i);
+				doMessage("btn:0" + SPLITER + i);
 				break;
 			}
 			if (actionCmd.equals("user2/" + i))
 			{
-				doMessage("btn:" + i);
+				doMessage("btn:1" + SPLITER + i);
 				break;
 			}
 		}
