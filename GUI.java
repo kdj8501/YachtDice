@@ -1,3 +1,7 @@
+/*
+ * This is GUI TEST Class
+ */
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -12,7 +16,7 @@ import javax.swing.JScrollPane;
 
 public class GUI extends JFrame implements ActionListener{
 	
-	private static final int WIDTH = 730;
+	private static final int WIDTH = 850;
 	private static final int HEIGHT = 400;
 	
 	private JTextArea chatArea;
@@ -35,8 +39,11 @@ public class GUI extends JFrame implements ActionListener{
 		name1.setBounds(500, 10, 100, 20);
 		JLabel name2 = new JLabel("어디까지긴닉네임가능?");
 		name2.setBounds(600, 10, 100, 20);
+		JLabel name3 = new JLabel("어디까지긴닉네임가능?");
+		name3.setBounds(700, 10, 100, 20);
 		add(name1);
 		add(name2);
+		add(name3);
 		
 		icons = new ImageIcon[7];
 		for (int i = 0; i < 7; i++)

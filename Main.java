@@ -15,26 +15,24 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.JOptionPane;
 
-public class Main extends JFrame implements ActionListener{
+public class Main extends JFrame implements ActionListener {
 	
 	private static final int WIDTH = 450;
 	private static final int HEIGHT = 300;
 	private static final String TOP_TITLE = "Yacht Dice Online";
 	private static final String MAIN_TITLE = "야추 온라인";
 	private static final String SERVER_IP = "127.0.0.1";
-	private static final int SERVER_PORT = 7777;
+	private static final int SERVER_PORT = 7778;
 	
 	private JTextField nickname;
 	
-	public Main()
-	{
+	public Main() {
 		setTitle(TOP_TITLE);
 		setSize(WIDTH, HEIGHT);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(null);
-		
 		JLabel title = new JLabel(MAIN_TITLE);
 		JLabel nicktext = new JLabel("Nickname");
 		nickname = new JTextField(20);
@@ -54,64 +52,45 @@ public class Main extends JFrame implements ActionListener{
 		nickname.setBounds(80, 120, 280, 20);
 		connect.setBounds(80, 150, 280, 40);
 		exit.setBounds(80, 200, 280, 40);
-		
 		setVisible(true);
 	}
 	
-	public void actionPerformed(ActionEvent e)
-	{
+	public void actionPerformed(ActionEvent e) {
 		String actionCmd = e.getActionCommand();
-		if (actionCmd.equals("Connect"))
-		{
-			if (nickname.getText().isEmpty() || nickname.getText().isBlank())
+		if (actionCmd.equals("Connect")) {
+			if (nickname.getText().trim().isEmpty())
 				JOptionPane.showMessageDialog(null, "닉네임을 입력해주세요.", "Error", JOptionPane.INFORMATION_MESSAGE);
-			else
-			{
+			else {
 				Socket socket = new Socket();
-		        try
-		        {
+		        try {
 		            socket.connect(new InetSocketAddress(SERVER_IP, SERVER_PORT));
-		            boolean able = false;
 		            PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-		            String request = nickname.getText() + "\n";
+		            String request = nickname.getText();
 		            pw.println(request);
 		            pw.flush();
-		            try
-			        {
+		            try {
 			        	BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
 			            String msg = br.readLine();
-			            if (msg.equals("Y"))
-			            	able = true;
-			        }
-			        catch (IOException h)
-			        {
+			            if (msg.equals("connect:able")) {
+			            	new Lobby(socket, pw);
+			            	dispose();
+			            }
+			            else
+			            	 JOptionPane.showMessageDialog(null, "현재 접속중인 닉네임입니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
+			        } catch (IOException h) {
 			            JOptionPane.showMessageDialog(null, "서버 점검중 입니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
 			            dispose();
 			        }
-		            if (able)
-		            {
-		            	new Lobby(socket, pw);
-		            	pw.println("join");
-		            	pw.flush();
-		            	dispose();
-		            }
-		            else
-		            	 JOptionPane.showMessageDialog(null, "현재 접속중인 닉네임입니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
-		        }
-		        catch (IOException g)
-		        {
+		        } catch (IOException g) {
 		        	JOptionPane.showMessageDialog(null, "서버 점검중 입니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
 		        }
 			}
 		}
 		else if (actionCmd.equals("Exit"))
-		{
 			dispose();
-		}
 	}
 	
-	public static void main(String argrs[])
-	{
+	public static void main(String argrs[]) {
 		new Main();
 	}
 }

@@ -20,11 +20,11 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class Lobby extends JFrame implements ActionListener{
-	
+public class Lobby extends JFrame implements ActionListener {
 	private PrintWriter pw;
 	private static final int WIDTH = 450;
 	private static final int HEIGHT = 400;
+	private static final String TOP_TITLE = "Yacht Dice Online";
 	private static final String SPLITER = "#!#";
 	
 	private JList<Object> serverList;
@@ -37,10 +37,9 @@ public class Lobby extends JFrame implements ActionListener{
 	
 	private ArrayList<String> rooms;
 	
-	public Lobby(Socket socket, PrintWriter pw)
-	{
+	public Lobby(Socket socket, PrintWriter pw) {
 		this.pw = pw;
-		setTitle("Yacht Lobby");
+		setTitle(TOP_TITLE);
 		setSize(WIDTH, HEIGHT);
 		setLocationRelativeTo(null);
 		setResizable(false);
@@ -80,20 +79,16 @@ public class Lobby extends JFrame implements ActionListener{
 		
 		chatField = new JTextField("",30);
 		chatField.setBounds(15, 330, 405, 20);
-		chatField.addKeyListener(new KeyAdapter()
-		{
-            public void keyReleased(KeyEvent e)
-            {
+		chatField.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent e) {
                 char keyCode = e.getKeyChar();
                 if (keyCode == KeyEvent.VK_ENTER && !chatField.getText().isEmpty())
                     sendMessage();
             }
         });
 		
-		addWindowListener(new WindowAdapter()
-		{
-            public void windowClosing(WindowEvent e)
-            {
+		addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
             	doMessage("quit");
                 System.exit(0);
             }
@@ -115,57 +110,34 @@ public class Lobby extends JFrame implements ActionListener{
 		doMessage("request:rooms");
 	}
 	
-	public void actionPerformed(ActionEvent e)
-	{
+	public void actionPerformed(ActionEvent e) {
 		String actionCmd = e.getActionCommand();
-		if (actionCmd.equals("Refresh List"))
-		{
+		if (actionCmd.equals("Refresh List")) {
 			doMessage("request:rooms");
 		}
-		else if (actionCmd.equals("Create Room"))
-		{
+		else if (actionCmd.equals("Create Room")) {
 			new CreateRoom();
 		}
-		else if (actionCmd.equals("Join Room"))
-		{
+		else if (actionCmd.equals("Join Room")) {
 			if (serverList.getSelectedIndex() == -1)
 				JOptionPane.showMessageDialog(null, "접속할 방을 선택해주세요.", "Error", JOptionPane.INFORMATION_MESSAGE);
 			else
-			{
 				doMessage("tojoin:" + serverList.getSelectedIndex());
-			}
 		}
 	}
 	
-	private void sendMessage()
-	{
+	private void sendMessage() {
         String message = chatField.getText();
-        String request;
-        if (message.equals("/"))
-        {
-        	chatArea.append("server:올바르지 않은 명령어 입니다.");
-        	chatArea.append("\n");
-           	chatArea.setCaretPosition(chatArea.getDocument().getLength());
-        }
-        else
-        {
-          	if (message.charAt(0) == '/')	
-           		request = "command:" + message.substring(1);
-           	else
-           		request = "message:" + message ;
-          	doMessage(request);
-        }
+        doMessage("message:" + message);
         chatField.setText("");
         chatField.requestFocus();
     }
 	
-	private class CreateRoom extends JFrame implements ActionListener
-	{	
+	private class CreateRoom extends JFrame implements ActionListener {	
 		private JTextField textField;
 		private JButton ok;
 		
-		CreateRoom()
-		{
+		CreateRoom() {
 			setTitle("Create Room");
 			setSize(280, 100);
 			setLocationRelativeTo(null);
@@ -186,15 +158,12 @@ public class Lobby extends JFrame implements ActionListener{
 			setVisible(true);
 		}
 		
-		public void actionPerformed(ActionEvent e)
-		{
+		public void actionPerformed(ActionEvent e) {
 			String actionCmd = e.getActionCommand();
-			if (actionCmd.equals("OK"))
-			{
+			if (actionCmd.equals("OK")) {
 				if (textField.getText().isEmpty() || textField.getText().isBlank())
 					JOptionPane.showMessageDialog(null, "방 이름을 입력해주세요.", "Error", JOptionPane.INFORMATION_MESSAGE);
-				else
-				{
+				else {
 			        doMessage("create:" + textField.getText());
 			        dispose();
 				}
@@ -202,81 +171,64 @@ public class Lobby extends JFrame implements ActionListener{
 		}
 	}
 	
-	private void doMessage(String data)
-	{
-		pw.println(data);
-		pw.flush();
-	}
-	
-	private class ChatClientReceiveThread extends Thread
-	{
+	private class ChatClientReceiveThread extends Thread {
 	    Socket socket = null;
-	    ChatClientReceiveThread(Socket socket)
-	    {
+	    ChatClientReceiveThread(Socket socket) {
 	    	this.socket = socket;
 	    }
-	    public void run()
-	    {
-	        try
-	        {
+	    public void run() {
+	        try {
 	        	BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
-	            while(true)
-	            {
+	            while(true) {
 	            	String msg = br.readLine();
 	            	if (msg == null) break;
-	            	else if (msg.split(":")[0].equals("message"))
-	            	{
+	            	else if (msg.split(":")[0].equals("message")) {
+	            		if (!chatArea.getText().isEmpty())
+	            			chatArea.append("\n");
 	            		chatArea.append(msg.substring(msg.indexOf(":") + 1));
-		            	chatArea.append("\n");
 		            	chatArea.setCaretPosition(chatArea.getDocument().getLength());
 	            	}
-	            	else if (msg.split(":")[0].equals("users"))
-	            	{
+	            	else if (msg.split(":")[0].equals("users")) {
 	            		String str = msg.split(":")[1].replace(SPLITER, "\n");
 	            		userList.setText(str);
 	            	}
-	            	else if (msg.split(":")[0].equals("join"))
-	            	{
-	            		if (msg.split(":")[1].equals("error"))
-	            		{
+	            	else if (msg.split(":")[0].equals("join")) {
+	            		if (msg.split(":")[1].equals("error")) {
 	            			JOptionPane.showMessageDialog(null, "접속할 수 없습니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
 	            			doMessage("request:rooms");
 	            		}
-	            		else if (msg.split(":")[1].equals("full"))
-	            		{
+	            		else if (msg.split(":")[1].equals("full")) {
 	            			JOptionPane.showMessageDialog(null, "방의 인원이 가득 찼습니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
 	            			doMessage("request:rooms");
 	            		}
-	            		else if (msg.split(":")[1].equals("started"))
-	            		{
+	            		else if (msg.split(":")[1].equals("started")) {
 	            			JOptionPane.showMessageDialog(null, "이미 시작한 방입니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
 	            			doMessage("request:rooms");
 	            		}
-	            		else
-	            		{
-		            		new Room(socket, pw, msg.split(":")[1]);
+	            		else {
+		            		new Room(socket, pw);
 		            		dispose();
 		            		break;
 	            		}
 	            	}
-	            	else if (msg.split(":")[0].equals("rooms"))
-	            	{
+	            	else if (msg.split(":")[0].equals("rooms")) {
 		            	rooms.clear();
 		            	if (!"rooms:".equals(msg))
-		            	{
 			            	for (String x : msg.split(":")[1].split(SPLITER))
 			            		rooms.add(x);
-		            	}
 		            	serverList.setListData(rooms.toArray());
 	            	}
 	            }
-	        }
-	        catch (IOException e)
-	        {
+	        } catch (IOException e) {
 	            JOptionPane.showMessageDialog(null, "서버와의 연결이 종료되었습니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
 	            dispose();
 	        }
 	    }
+	}
+	
+	private void doMessage(String data) {
+		pw.println(data);
+		pw.flush();
 	}
 
 }
