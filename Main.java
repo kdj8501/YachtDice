@@ -65,7 +65,7 @@ public class Main extends JFrame implements ActionListener {
 		        try {
 		            socket.connect(new InetSocketAddress(SERVER_IP, SERVER_PORT));
 		            PrintWriter pw = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8), true);
-		            String request = nickname.getText();
+		            String request = "name:" + nickname.getText();
 		            pw.println(request);
 		            pw.flush();
 		            try {
@@ -75,8 +75,10 @@ public class Main extends JFrame implements ActionListener {
 			            	new Lobby(socket, pw);
 			            	dispose();
 			            }
-			            else
+			            else if (msg.equals("connect:unable"))
 			            	 JOptionPane.showMessageDialog(null, "현재 접속중인 닉네임입니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
+			            else
+			            	 JOptionPane.showMessageDialog(null, "서버와의 연결이 끊어졌습니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
 			        } catch (IOException h) {
 			            JOptionPane.showMessageDialog(null, "서버 점검중 입니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
 			            dispose();

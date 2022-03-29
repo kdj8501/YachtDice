@@ -218,6 +218,11 @@ public class Lobby extends JFrame implements ActionListener {
 			            		rooms.add(x);
 		            	serverList.setListData(rooms.toArray());
 	            	}
+	            	else if (msg.equals("connect:error")) {
+	            		JOptionPane.showMessageDialog(null, "서버와의 연결이 끊어졌습니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
+	            		dispose();
+	            		break;
+	            	}
 	            }
 	        } catch (IOException e) {
 	            JOptionPane.showMessageDialog(null, "서버와의 연결이 종료되었습니다.", "Error", JOptionPane.INFORMATION_MESSAGE);

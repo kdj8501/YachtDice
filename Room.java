@@ -330,6 +330,11 @@ public class Room extends JFrame implements ActionListener {
 	            		new Lobby(socket, pw);
 	            		break;
 	            	}
+	            	else if (msg.equals("connect:error")) {
+	            		JOptionPane.showMessageDialog(null, "서버와의 연결이 끊어졌습니다.", "Error", JOptionPane.INFORMATION_MESSAGE);
+	            		dispose();
+	            		break;
+	            	}
 	            }
 	        }
 	        catch (IOException e) {
